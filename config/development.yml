@@ -1,0 +1,5 @@
+URL: 'localhost:3000'
+DB_HOST: 'localhost'
+DB_NAME: 'rose_park_development'
+DB_USER: 'postgres'
+DB_PASSWORD: 'postgres'
