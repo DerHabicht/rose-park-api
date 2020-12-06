@@ -32,7 +32,7 @@ var GitBranch string
 // @contact.email robert@the-hawk.us
 
 // @host https://the-hawk.us
-// @BasePath /blogs/v1
+// @BasePath /apis/blogs/v1
 func main() {
 	version := fmt.Sprintf(
 		"%s+%s.%s.%s",
