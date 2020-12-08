@@ -1,8 +1,6 @@
 package models
 
 import (
-	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/satori/go.uuid"
@@ -31,15 +29,4 @@ func (b BaseModel) GetID() uint {
 
 func (b BaseModel) GetIDFieldName() string {
 	return "ID"
-}
-
-type ValidationErrors []string
-
-func (v ValidationErrors) Error() string {
-	verrs, err := json.Marshal(v)
-	if err != nil {
-		panic(fmt.Errorf("marshalling of validation errors failed: %v", err))
-	}
-
-	return string(verrs)
 }

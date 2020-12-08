@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"github.com/derhabicht/rose-park/controllers"
 	"net/http"
 
 	"github.com/auth0-community/go-auth0"
@@ -22,7 +23,7 @@ func Authorize(validator *auth0.JWTValidator) gin.HandlerFunc {
 	return gin.HandlerFunc(func(c *gin.Context) {
 		tok, err := validator.ValidateRequest(c.Request)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, controllers.ControllerError{"error": "invalid token"})
 			logrus.WithFields(logrus.Fields{
 				"error": err,
 			}).Error("Invalid auth token provided to API")

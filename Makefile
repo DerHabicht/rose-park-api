@@ -9,7 +9,8 @@ GIT_DIRTY = `git diff-index --quiet HEAD -- || echo 'x-'`
 
 LDFLAGS = -ldflags "-s -X main.BuildTime=${BUILD_TIME} -X main.GitRevision=${GIT_DIRTY}${GIT_REVISION} -X main.GitBranch=${GIT_BRANCH}"
 
-bin/rose-park: main.go $(foreach f, $(SRC), $(f).go)
+bin/rose-park: main.go routes.go $(foreach f, $(SRC), $(f).go)
+	swag init
 	go build ${LDFLAGS} -o bin/rose-park
 
 .PHONY: install

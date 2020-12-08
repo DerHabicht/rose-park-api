@@ -1,0 +1,159 @@
+basePath: /apis/blogs/v1
+definitions:
+  controllers.ControllerError:
+    additionalProperties: true
+    type: object
+  controllers.ServiceStatus:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+      status:
+        additionalProperties:
+          type: boolean
+        type: object
+      version:
+        type: string
+    type: object
+  models.Author:
+    properties:
+      bio:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      posts:
+        items:
+          $ref: '#/definitions/models.Post'
+        type: array
+    type: object
+  models.Blog:
+    properties:
+      authors:
+        items:
+          $ref: '#/definitions/models.Author'
+        type: array
+      domain:
+        type: string
+      name:
+        description: The name of this blog.
+        type: string
+      posts:
+        items:
+          $ref: '#/definitions/models.Post'
+        type: array
+    type: object
+  models.Post:
+    properties:
+      authors:
+        items:
+          $ref: '#/definitions/models.Author'
+        type: array
+      body:
+        type: string
+      publish_date:
+        type: string
+      slug:
+        type: string
+      title:
+        type: string
+    type: object
+host: https://the-hawk.us
+info:
+  contact:
+    email: robert@the-hawk.us
+    name: Robert Hawk
+  description: UPDATE DESCRIPTION FIELD
+  title: THUS Blogs Backend
+  version: 0.1.0+0
+paths:
+  /health:
+    get:
+      description: |-
+        Healthcheck endpoint. Reports which statuses are currently
+        running and the current API\'s version number. If critical
+        services are running, it will return 200. If any of the
+        critical services are down, then the endpoint will return 503.
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ServiceStatus'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/controllers.ServiceStatus'
+      summary: Check to assure that the service is running.
+  /sites:
+    get:
+      description: Lists all blogs that are managed by this backend. Authentication
+        is required to use this endpoint.
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Blog'
+            type: array
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ControllerError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ControllerError'
+      summary: List all blog sites managed by this backend.
+    post:
+      description: Creates a new blog site to be managed by this backend. Authentication
+        is required to use this endpoint.
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Blog'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ControllerError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/controllers.ControllerError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ControllerError'
+      summary: Create a new blog site.
+  /sites/{domain}:
+    get:
+      description: |-
+        Retrieve the blog, all authors that write for this blog and their bios, and the ten most recent post
+        titles (with their slugs) published on this blog. Authentication is not required for this endpoint.
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Blog'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controllers.ControllerError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ControllerError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ControllerError'
+      summary: Fetch data regarding this blog.
+swagger: "2.0"

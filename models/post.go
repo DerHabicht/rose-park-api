@@ -4,7 +4,7 @@ import "time"
 
 type Post struct {
 	BaseModel
-	URL         string    `json:"url"`
+	Slug        string    `json:"slug"`
 	Title       string    `json:"title"`
 	PublishDate time.Time `json:"publish_date"`
 	Body        string    `json:"body"`
