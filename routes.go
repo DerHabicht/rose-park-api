@@ -28,13 +28,28 @@ func newRouter(version string, logger *logrus.Logger) *gin.Engine {
 		v1.GET("/health", health.Check)
 	}
 
-	// Endpoints that operate directly on Blog objects
+	// Blog setup/management endpoints
 	blogs := controllers.NewBlogsController()
 	v1.POST("/sites", validator, blogs.Create)
 	v1.GET("/sites", validator, blogs.List)
-	v1.GET("/sites/:url", blogs.Fetch)
-	v1.PUT("/sites/:url", validator, blogs.Update)
-	v1.DELETE("/sites/:url", validator, blogs.Delete)
+	v1.PUT("/sites/:blog_domain", validator, blogs.Update)
+	v1.DELETE("/sites/:blog_domain", validator, blogs.Delete)
+
+	// Author bios endpoints
+	authors := controllers.NewAuthorsController()
+	v1.POST("/authors", validator, authors.Create)
+	v1.GET("/authors", authors.List)
+	v1.GET("/authors/:author_id", authors.Fetch)
+	v1.PUT("/authors/:author_id", validator, authors.Update)
+	v1.DELETE("/authors/:author_id", validator, authors.Delete)
+
+	// Posts endpoints
+	posts := controllers.NewPostsController()
+	v1.POST("/posts/:blog_domain", validator, posts.Create)
+	v1.GET("/posts/:blog_domain", posts.List)
+	v1.GET("/posts/:blog_domain/:post_slug", posts.Fetch)
+	v1.PUT("/posts/:blog_domain/:post_slug", validator, posts.Update)
+	v1.DELETE("/posts/:blog_domain/:post_slg", validator, posts.Delete)
 
 	return router
 }

@@ -2,17 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
-
-type Controller interface {
-	Create(c *gin.Context)
-	List(c *gin.Context)
-	Fetch(c *gin.Context)
-	Update(c *gin.Context)
-	Delete(c *gin.Context)
-}
 
 type ControllerError map[string]interface{}
 
@@ -26,4 +17,14 @@ func (ce ControllerError) Error() string {
 	}
 
 	return string(s)
+}
+
+// MarshalForLog is a utility function used to marshal structs to be included in log entries.
+func MarshalForLog(v interface{}) string {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return "FAILED TO MARSHAL OBJECT"
+	}
+
+	return string(b)
 }

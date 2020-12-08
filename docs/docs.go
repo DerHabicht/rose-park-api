@@ -113,9 +113,9 @@ var doc = `{
             }
         },
         "/sites/{domain}": {
-            "get": {
-                "description": "Retrieve the blog, all authors that write for this blog and their bios, and the ten most recent post\ntitles (with their slugs) published on this blog. Authentication is not required for this endpoint.",
-                "summary": "Fetch data regarding this blog.",
+            "put": {
+                "description": "This endpoint is used to update the name or domain name of a managed blog. Authentication is required.",
+                "summary": "Edit data pertaining to a managed blog.",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -131,6 +131,12 @@ var doc = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ControllerError"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/controllers.ControllerError"
                         }
@@ -170,72 +176,15 @@ var doc = `{
                 }
             }
         },
-        "models.Author": {
-            "type": "object",
-            "properties": {
-                "bio": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "posts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Post"
-                    }
-                }
-            }
-        },
         "models.Blog": {
             "type": "object",
             "properties": {
-                "authors": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Author"
-                    }
-                },
                 "domain": {
+                    "description": "Domain is the domain name where this blog lives on the internet.",
                     "type": "string"
                 },
                 "name": {
-                    "description": "The name of this blog.",
-                    "type": "string"
-                },
-                "posts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Post"
-                    }
-                }
-            }
-        },
-        "models.Post": {
-            "type": "object",
-            "properties": {
-                "authors": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Author"
-                    }
-                },
-                "body": {
-                    "type": "string"
-                },
-                "publish_date": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "title": {
+                    "description": "Name is the title of the blog.",
                     "type": "string"
                 }
             }

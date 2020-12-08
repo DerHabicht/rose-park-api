@@ -9,14 +9,14 @@ import (
 type Blog struct {
 	BaseModel
 
-	// The name of this blog.
+	// Name is the title of the blog.
 	Name    string   `json:"name"`
+
+	// Domain is the domain name where this blog lives on the internet.
 	Domain  string   `json:"domain"`
-	Posts   []Post   `json:"posts,omitempty"`
-	Authors []Author `json:"authors,omitempty" gorm:"many2many:blog_authors"`
 }
 
-func (b *Blog) BeforeCreate(tx *gorm.DB) error {
+func (b *Blog) BeforeSave(tx *gorm.DB) error {
 	return validation.ValidateStruct(b,
 		validation.Field(&b.Name, validation.Required),
 		validation.Field(&b.Domain, validation.Required, is.URL),

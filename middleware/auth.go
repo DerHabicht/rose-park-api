@@ -25,6 +25,7 @@ func Authorize(validator *auth0.JWTValidator) gin.HandlerFunc {
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, controllers.ControllerError{"error": "invalid token"})
 			logrus.WithFields(logrus.Fields{
+				"module": "auth",
 				"error": err,
 			}).Error("Invalid auth token provided to API")
 			return
@@ -33,6 +34,7 @@ func Authorize(validator *auth0.JWTValidator) gin.HandlerFunc {
 		claims := make(map[string]interface{})
 		err = validator.Claims(c.Request, tok, &claims)
 		logrus.WithFields(logrus.Fields{
+			"module": "auth",
 			"claims": claims,
 		}).Debug("")
 

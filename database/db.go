@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -28,5 +29,27 @@ func init() {
 	DB, err = gorm.Open("postgres", connectionStr)
 	if err != nil {
 		panic(fmt.Sprintf("Unable to establish database connection: %v", err))
+	}
+
+	if viper.GetString("GIN_MODE") == "debug" {
+			DB.SetLogger(&GormLogger{})
+			DB.LogMode(true)
+	}
+}
+
+type GormLogger struct{}
+
+func (g *GormLogger) Print(v ...interface{}) {
+	if v[0] == "sql" {
+		logrus.WithFields(logrus.Fields{
+			"module": "gorm",
+			"type": "sql",
+		}).Debug(v[3])
+	}
+	if v[0] == "log" {
+		logrus.WithFields(logrus.Fields{
+			"module": "gorm",
+			"type": "log",
+		}).Debug(v[2])
 	}
 }

@@ -10,7 +10,6 @@ func init() {
 	_ = gotenv.Load()
 	viper.AutomaticEnv()
 
-	viper.SetDefault("ENV", "development")
 	viper.SetDefault("GIN_MODE", "debug")
 	viper.SetDefault("URL", "localhost:3000")
 	viper.SetDefault("DB_HOST", "localhost")
