@@ -22,6 +22,11 @@ install: bin/rose-park
 run: bin/rose-park
 	air -d -c .air.conf
 
+.PHONY: test
+test:
+	cd database; lair reset --env=test
+	ENV=test go test ./...
+
 .PHONY: clean
 clean:
 	-@rm bin/rose-park

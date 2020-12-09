@@ -1,5 +1,31 @@
 # Rose Park
 
+## Getting Started
+
+### Prerequisites
+- An API and test Application set up through [Auth0](https://auth0.com)
+- Go 1.15
+- Postgres 12.4
+- GNU Make
+- [Air](https://github.com/cosmtrek/air) 
+- [Lair](https://github.com/weblair/lair)
+
+### After Cloning
+- Create a `.env` file to set the following to their appropriate values
+  (these values can be obtained from the Auth0 dashboard):
+    - `AUTH0_API_AUDIENCE`
+    - `AUTH0_JWK`
+- From within the `database` directory, execute the following commands:
+    - `lair db create`
+    - `lair db migrate`
+- To run in development mode, use `make run`
+
+### Running Tests
+Before running tests, the following will need to be set in the `.env` file:
+- `AUTH0_TEST_AUTH_URL`
+- `AUTH0_TEST_CLIENT_ID`
+- `AUTH0_TEST_CLIENT_SECRET`
+
 ## Contribution Guidelines
 
 ### Commit Messages

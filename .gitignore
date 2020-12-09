@@ -18,9 +18,13 @@ vendor/
 
 # IDE Files
 .idea/
+*.vpp.bak_*
+*.vpp.lck
 
 # .env files, stage, and production configs
 .env*
 config/stage.yml
 config/production.yml
 
+# Test JWT token
+.test_auth0_token.json

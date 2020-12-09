@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Post struct {
-	BaseModel
+	BaseModelWithSoftDelete
 	Slug        string    `json:"slug"`
 	Title       string    `json:"title"`
 	PublishDate time.Time `json:"publish_date"`

@@ -112,7 +112,7 @@ var doc = `{
                 }
             }
         },
-        "/sites/{domain}": {
+        "/sites/{blog_domain}": {
             "put": {
                 "description": "This endpoint is used to update the name or domain name of a managed blog. Authentication is required.",
                 "summary": "Edit data pertaining to a managed blog.",
@@ -137,6 +137,36 @@ var doc = `{
                     },
                     "422": {
                         "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ControllerError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ControllerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Performs a hard delete on this blog and all posts belonging to this blog. Since this is a hard delete\nthis ACTION CAN NOT BE UNDONE! Requires authentication.",
+                "summary": "Delete the specified blog from this backend.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Blog"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ControllerError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/controllers.ControllerError"
                         }

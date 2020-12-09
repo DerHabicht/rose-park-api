@@ -18,6 +18,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/lib/pq v1.9.0
 	github.com/pelletier/go-toml v1.8.1 // indirect
+	github.com/pkg/errors v0.9.1
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.7.0

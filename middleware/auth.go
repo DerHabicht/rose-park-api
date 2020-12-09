@@ -1,14 +1,14 @@
 package middleware
 
 import (
-	"github.com/derhabicht/rose-park/controllers"
-	"net/http"
-
 	"github.com/auth0-community/go-auth0"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gopkg.in/square/go-jose.v2"
+	"net/http"
+
+	"github.com/derhabicht/rose-park/controllers"
 )
 
 func GetValidator() *auth0.JWTValidator {

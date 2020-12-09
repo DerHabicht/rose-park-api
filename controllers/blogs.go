@@ -2,12 +2,13 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/derhabicht/rose-park/database"
-	"github.com/derhabicht/rose-park/models"
 	"github.com/gin-gonic/gin"
 	"github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
+
+	"github.com/derhabicht/rose-park/database"
+	"github.com/derhabicht/rose-park/models"
 )
 
 type BlogsController struct{}
@@ -16,7 +17,7 @@ func NewBlogsController() BlogsController {
 	return BlogsController{}
 }
 
-// Blog creation handler.
+// Create is the handler for the POST /sites endpoint.
 // @Summary Create a new blog site.
 // @Description Creates a new blog site to be managed by this backend. Authentication is required to use this endpoint.
 // @Success 201 {object} models.Blog
@@ -61,6 +62,12 @@ func (bc BlogsController) Create(c *gin.Context) {
 		return
 	}
 
+	logrus.WithFields(logrus.Fields{
+		"module": "controllers",
+		"endpoint": "POST /api/blogs/v1/sites/",
+	}).Info(fmt.Sprintf("%s was created", blog.Name))
+
+
 	c.JSON(http.StatusCreated, blog)
 }
 
@@ -97,7 +104,7 @@ func (bc BlogsController) List(c *gin.Context) {
 	}
 }
 
-// Blog update handler.
+// Update is the handler for the PUT /sites/:blog_domain endpoint.
 // @Summary Edit data pertaining to a managed blog.
 // @Description This endpoint is used to update the name or domain name of a managed blog. Authentication is required.
 // @Success 200 {object} models.Blog
@@ -105,7 +112,7 @@ func (bc BlogsController) List(c *gin.Context) {
 // @Failure 404 {object} controllers.ControllerError Returns if the lookup domain doesn't point to a managed blog.
 // @Failure 422 {object} controllers.ControllerError If there are problems with the updated object.
 // @Failure 500 {object} controllers.ControllerError Returns if there is an unknown issue with the database.
-// @Router /sites/{domain} [put]
+// @Router /sites/{blog_domain} [put]
 func (bc BlogsController) Update(c *gin.Context) {
 	var blog models.Blog
 
@@ -173,9 +180,64 @@ func (bc BlogsController) Update(c *gin.Context) {
 		return
 	}
 
+	logrus.WithFields(logrus.Fields{
+		"module": "controllers",
+		"endpoint": fmt.Sprintf("PUT /api/blogs/v1/sites/%s", c.Param("blog_domain")),
+	}).Info(fmt.Sprintf("%s was updated", blog.Name))
+
 	c.JSON(http.StatusOK, blog)
 }
 
+// Delete is the handler for the DELETE /sites/:blog_domain endpoint.
+// @Summary Delete the specified blog from this backend.
+// @Description Performs a hard delete on this blog and all posts belonging to this blog. Since this is a hard delete
+// @Description this ACTION CAN NOT BE UNDONE! Requires authentication.
+// @Success 200 {object} models.Blog
+// @Failure 401 {object} controllers.ControllerError Returns if an invalid token is provided with the request.
+// @Failure 404 {object} controllers.ControllerError Returns if the lookup domain doesn't point to a managed blog.
+// @Failure 500 {object} controllers.ControllerError Returns if there is an unknown issue with the database.
+// @Router /sites/{blog_domain} [delete]
 func (bc BlogsController) Delete(c *gin.Context) {
-	c.String(http.StatusNotImplemented, "Endpoint not yet implemented.")
+	var blog models.Blog
+
+	r := database.DB.Where("domain = ?", c.Param("blog_domain")).First(&blog)
+	if r.RowsAffected == 0 {
+		logrus.WithFields(logrus.Fields{
+			"module": "controllers",
+			"endpoint": fmt.Sprintf("DELETE /api/blogs/v1/sites/%s", c.Param("blog_domain")),
+		}).Error("Blog to delete was not found.")
+
+		c.AbortWithStatusJSON(
+			http.StatusNotFound,
+			ControllerError{
+				"error": fmt.Sprintf("%s is not managed by this backend.", c.Param("blog_domain")),
+			},
+		)
+
+		return
+	}
+
+	logrus.WithFields(logrus.Fields{
+		"module": "controllers",
+		"endpoint": fmt.Sprintf("DELETE /api/blogs/v1/sites/%s", c.Param("blog_domain")),
+		"update_value": MarshalForLog(blog),
+	}).Debug(fmt.Sprintf("Retrieved %s from database.", c.Param("blog_domain")))
+
+	r = database.DB.Delete(&blog)
+	if r.Error != nil {
+		logrus.WithFields(logrus.Fields{
+			"module": "controllers",
+			"endpoint": fmt.Sprintf("DELETE /api/blogs/v1/sites/%s", c.Param("blog_domain")),
+			"error":    r.Error,
+		}).Error("failed to delete Blog object")
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ControllerError{"error": "failed to update blog"})
+		return
+	}
+
+	logrus.WithFields(logrus.Fields{
+		"module": "controllers",
+		"endpoint": fmt.Sprintf("DELETE /api/blogs/v1/sites/%s", c.Param("blog_domain")),
+	}).Warn(fmt.Sprintf("%s was deleted", blog.Name))
+
+	c.JSON(http.StatusOK, blog)
 }
