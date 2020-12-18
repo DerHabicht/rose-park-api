@@ -1,6 +1,6 @@
 URL: 'localhost:3000'
 DB_HOST: 'localhost'
-DB_NAME: 'rose_park_development'
+DB_NAME: 'rose_park_test'
 DB_USER: 'postgres'
 DB_PASSWORD: 'postgres'
 MIGRATIONS_DIRECTORY: 'database/migrations'

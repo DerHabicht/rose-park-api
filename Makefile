@@ -10,7 +10,12 @@ GIT_DIRTY = `git diff-index --quiet HEAD -- || echo 'x-'`
 LDFLAGS = -ldflags "-s -X main.BuildTime=${BUILD_TIME} -X main.GitRevision=${GIT_DIRTY}${GIT_REVISION} -X main.GitBranch=${GIT_BRANCH}"
 
 bin/rose-park: main.go $(foreach f, $(SRC), $(f).go)
-	go build ${LDFLAGS} -o bin/rose-park
+	go build ${LDFLAGS} -mod vendor -o bin/rose-park
+
+.PHONY: test
+test:
+	lair --env test reset
+	ENV=test go test ./...
 
 .PHONY: install
 install: bin/rose-park

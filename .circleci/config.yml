@@ -1,0 +1,45 @@
+version: 2.1
+jobs:
+  test:
+    working_directory: ~/go/src/DerHabicht/rose-park-api
+    docker:
+      - image: weblair/lair:0.5.3
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "go.sum" }}
+      - run:
+          name: run-tests
+          command: 'make test'
+      - save_cache:
+          key: dependency-cache-{{ checksum "go.sum" }}
+          paths:
+            - ./vendor
+
+workflows:
+  version: 2
+  test-deploy:
+    jobs:
+      - test
+#      - build:
+#          requires:
+#            - test
+#      - stage:
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              only: develop
+#      - stage-test:
+#        requires:
+#          - stage
+#        filters:
+#          branches:
+#            only: develop
+#      - deploy:
+#          context: rose-park
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              only: master
