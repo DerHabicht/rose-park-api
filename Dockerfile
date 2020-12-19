@@ -1,7 +1,7 @@
 FROM golang:1.15-alpine
 WORKDIR /go/src/github.com/derhabicht/rose-park-api
 
-RUN apk add git make
+RUN apk add make
 
 COPY ./ ./
 RUN make clean
@@ -11,5 +11,6 @@ RUN rm -rf /go/src/
 
 EXPOSE 8080
 ENV URL 0.0.0.0:8080
+ENV GIN_MODE release
 
-CMD ["/go/bin/rose-park-api"]
+CMD ["/go/bin/rose-park"]
