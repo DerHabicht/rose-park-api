@@ -25,7 +25,7 @@ func newRouter(version string, logger *logrus.Logger) *gin.Engine {
 	router.Use(ginlogrus.Logger(logger), gin.Recovery())
 
 	// Visit {host}/api/v1/swagger/index.html to see the API documentation.
-	v1 := router.Group("/api/v1")
+	v1 := router.Group("/api/blogs/v1")
 	v1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// {host}/api/v1/health resource

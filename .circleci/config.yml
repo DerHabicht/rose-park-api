@@ -24,17 +24,64 @@ jobs:
       - checkout
       - run:
           name: 'Login to Dockerhub'
-          command: 'echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin'
+          command: 'echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USER --password-stdin'
       - run:
           name: 'Build Docker image'
           command: 'docker build -t derhabicht/rose-park:$CIRCLE_BRANCH .'
       - run:
           name: 'Push image to Dockerhub'
           command: 'docker push derhabicht/rose-park:$CIRCLE_BRANCH'
-#  stage:
-#    machine: true
-#    steps:
-#      -
+  stage:
+    machine: true
+    steps:
+      # Stage A Deploy
+      ## The '|| echo egal' construct on the next two steps should keep the job from failing on those steps.
+      - run:
+          name: 'Shut down existing service on Stage A'
+          command: 'ssh ec2-user@$EC2_STAGE_A "podman stop rp-stage || echo egal"'
+      - run:
+          name: 'Remove Stage A Container'
+          command: 'ssh ec2-user@$EC2_STAGE_A "podman stop rp-stage || echo egal"'
+      - run:
+          name: 'Pull Stage A Container'
+          command: 'ssh ec2-user@$EC2_STAGE_A "podman pull derhabicht/rose-park:$CIRCLE_BRANCH"'
+      - run:
+          name: 'Start Stage A Container'
+          command: |
+            ssh ec2-user@$EC2_STAGE_A \
+              "podman run -d --name rp-stage \
+              --publish 8080:8080 \
+              --env DB_HOST=$STAGE_DB_HOST \
+              --env DB_USER=$STAGE_DB_USER \
+              --env DB_NAME=$STAGE_DB_NAME \
+              --env DB_PASSWORD=$STAGE_DB_PASSWORD \
+              --env AUTH0_API_AUDIENCE=$AUTH0_API_AUDIENCE \
+              --env AUTH0_JWK=$AUTH0_JWK \
+              derhabicht/rose-park:$CIRCLE_BRANCH"
+      # Stage B Deploy
+      ## The '|| echo egal' construct on the next two steps should keep the job from failing on those steps.
+      - run:
+          name: 'Shut down existing service on Stage B'
+          command: 'ssh ec2-user@$EC2_STAGE_B "podman stop rp-stage || echo egal"'
+      - run:
+          name: 'Remove Stage B Container'
+          command: 'ssh ec2-user@$EC2_STAGE_B "podman stop rp-stage || echo egal"'
+      - run:
+          name: 'Pull Stage B Container'
+          command: 'ssh ec2-user@$EC2_STAGE_B "podman pull derhabicht/rose-park:$CIRCLE_BRANCH"'
+      - run:
+          name: 'Start Stage B Container'
+          command: |
+            ssh ec2-user@$EC2_STAGE_B \
+              "podman run -d --name rp-stage \
+              --publish 8080:8080 \
+              --env DB_HOST=$STAGE_DB_HOST \
+              --env DB_USER=$STAGE_DB_USER \
+              --env DB_NAME=$STAGE_DB_NAME \
+              --env DB_PASSWORD=$STAGE_DB_PASSWORD \
+              --env AUTH0_API_AUDIENCE=$AUTH0_API_AUDIENCE \
+              --env AUTH0_JWK=$AUTH0_JWK \
+              derhabicht/rose-park:$CIRCLE_BRANCH"
 
 workflows:
   version: 2
@@ -50,12 +97,14 @@ workflows:
                 - develop
                 - master
                 - ci
-#      - stage:
-#          requires:
-#            - build
-#          filters:
-#            branches:
-#              only: develop
+      - stage:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - develop
+                - ci
 #      - stage-test:
 #        requires:
 #          - stage
