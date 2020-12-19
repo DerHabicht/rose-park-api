@@ -9,24 +9,43 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "go.sum" }}
       - run:
-          name: 'start Postgres'
+          name: 'Start Postgres'
           command: 'service postgresql start'
       - run:
-          name: run-tests
+          name: 'Run tests'
           command: 'make test'
       - save_cache:
           key: dependency-cache-{{ checksum "go.sum" }}
           paths:
             - ./vendor
+  build:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: 'Login to Dockerhub'
+          command: 'echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin'
+      - run:
+          name: 'Build Docker image'
+          command: 'docker build -t derhabicht/rose-park:$CIRCLE_BRANCH'
+      - run:
+          name: 'Push image to Dockerhub'
+          command: 'docker push derhabicht/rose-park:$CIRCLE_BRANCH'
 
 workflows:
   version: 2
   test-deploy:
     jobs:
       - test
-#      - build:
-#          requires:
-#            - test
+      - build:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - develop
+                - master
+                - ci
 #      - stage:
 #          requires:
 #            - build
