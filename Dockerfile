@@ -1,7 +1,7 @@
 FROM golang:1.15-alpine
 WORKDIR /go/src/github.com/derhabicht/rose-park-api
 
-RUN apk add make
+RUN apk add git make
 
 COPY ./ ./
 RUN make clean
