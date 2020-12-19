@@ -10,7 +10,6 @@ import (
 	ginlogrus "github.com/toorop/gin-logrus"
 
 	"github.com/derhabicht/rose-park/controllers"
-	"github.com/derhabicht/rose-park/middleware"
 )
 
 func configureResource(g *gin.RouterGroup, c controllers.Controller, r string) {
@@ -24,9 +23,6 @@ func configureResource(g *gin.RouterGroup, c controllers.Controller, r string) {
 func newRouter(version string, logger *logrus.Logger) *gin.Engine {
 	router := gin.New()
 	router.Use(ginlogrus.Logger(logger), gin.Recovery())
-
-	validator := middleware.GetValidator()
-	router.Use(middleware.Authorize(validator))
 
 	// Visit {host}/api/v1/swagger/index.html to see the API documentation.
 	v1 := router.Group("/api/v1")
