@@ -3,11 +3,14 @@ jobs:
   test:
     working_directory: ~/go/src/DerHabicht/rose-park-api
     docker:
-      - image: weblair/lair:0.5.3
+      - image: weblair/lair:0.5.4
     steps:
       - checkout
       - restore_cache:
           key: dependency-cache-{{ checksum "go.sum" }}
+      - run:
+          name: 'start Postgres'
+          command: 'service postgresql start'
       - run:
           name: run-tests
           command: 'make test'
