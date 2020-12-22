@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  aws-white-list-circleci-ip: configure/aws-white-list-circleci-ip@1.0.1
 jobs:
   test:
     working_directory: ~/go/src/DerHabicht/rose-park-api
@@ -32,8 +34,31 @@ jobs:
           name: 'Push image to Dockerhub'
           command: 'docker push derhabicht/rose-park:$CIRCLE_BRANCH'
   stage:
-    machine: true
+    working_directory: ~/go/src/DerHabicht/rose-park-api
+    docker:
+      - image: weblair/lair:0.5.4
     steps:
+      - checkout
+      # Migrate database
+      - aws-white-list-circleci-ip/add:
+          port: 5432
+          tag-key: Name
+          tag-value: 'Rose Park Stage'
+      - run:
+          name: 'Set Lair parameters to the stage database'
+          command: |
+            export DB_HOST = $STAGE_DB_HOST
+            export DB_NAME = $STAGE_DB_NAME
+            export DB_USER $STAGE_DB_USER
+            export DB_PASSWORD = $STAGE_DB_PASSWORD
+            export MIGRATIONS_DIRECTORY: "database/migrations"
+      - run:
+          name: 'Execute migrations with Lair'
+          command: lair migrate
+      - aws-white-list-circleci-ip/remove:
+          port: 5432
+          tag-key: Name
+          tag-value: 'Rose Park Stage'
       # Stage A Deploy
       ## The '|| echo egal' construct on the next two steps should keep the job from failing on those steps.
       - run:
