@@ -123,6 +123,7 @@ workflows:
                 - master
                 - ci
       - stage:
+          context: aws-thus
           requires:
             - build
           filters:
