@@ -43,7 +43,7 @@ jobs:
       - aws-white-list-circleci-ip/add:
           port: 5432
           tag-key: Name
-          tag-value: 'Rose Park Stage'
+          tag-value: 'RoseParkStage'
       - run:
           name: 'Set Lair parameters to the stage database'
           command: |
@@ -58,7 +58,7 @@ jobs:
       - aws-white-list-circleci-ip/remove:
           port: 5432
           tag-key: Name
-          tag-value: 'Rose Park Stage'
+          tag-value: 'RoseParkStage'
       # Stage A Deploy
       ## The '|| echo egal' construct on the next two steps should keep the job from failing on those steps.
       - run:
