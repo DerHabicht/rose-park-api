@@ -51,7 +51,7 @@ jobs:
             export DB_NAME=$STAGE_DB_NAME
             export DB_USER=$STAGE_DB_USER
             export DB_PASSWORD=$STAGE_DB_PASSWORD
-            export MIGRATIONS_DIRECTORY "database/migrations"
+            export MIGRATIONS_DIRECTORY="database/migrations"
       - run:
           name: 'Execute migrations with Lair'
           command: lair migrate
