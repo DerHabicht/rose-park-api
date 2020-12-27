@@ -36,7 +36,7 @@ jobs:
   stage:
     working_directory: ~/go/src/DerHabicht/rose-park-api
     docker:
-      - image: weblair/lair:0.5.4
+      - image: weblair/lair:0.5.5
     steps:
       - checkout
       # Migrate database
