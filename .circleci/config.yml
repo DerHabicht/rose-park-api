@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  aws-white-list-circleci-ip: configure/aws-white-list-circleci-ip@1.0.1
+  aws-s3: circleci/aws-s3@1.0.16
 jobs:
   test:
     working_directory: ~/go/src/DerHabicht/rose-park-api
@@ -39,18 +39,11 @@ jobs:
       - image: weblair/lair:0.5.5
     steps:
       - checkout
-      # Migrate database
-      - aws-white-list-circleci-ip/add:
-          port: 5432
-          tag-key: Name
-          tag-value: 'RoseParkStage'
-      - run:
-          name: 'Execute migrations'
-          command: migrate -source file://database/migrations -database $STAGE_DB_URL up
-      - aws-white-list-circleci-ip/remove:
-          port: 5432
-          tag-key: Name
-          tag-value: 'RoseParkStage'
+      # Upload stage migrations
+      - aws-s3/sync:
+          from: database/migrations
+          to: $STAGE_MIGRATIONS_BUCKET
+          overwrite: true
       # Stage A Deploy
       ## The '|| echo egal' construct on the next two steps should keep the job from failing on those steps.
       - run:
