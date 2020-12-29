@@ -45,16 +45,8 @@ jobs:
           tag-key: Name
           tag-value: 'RoseParkStage'
       - run:
-          name: 'Set Lair parameters to the stage database'
-          command: |
-            export DB_HOST=$STAGE_DB_HOST
-            export DB_NAME=$STAGE_DB_NAME
-            export DB_USER=$STAGE_DB_USER
-            export DB_PASSWORD=$STAGE_DB_PASSWORD
-            export MIGRATIONS_DIRECTORY="database/migrations"
-      - run:
-          name: 'Execute migrations with Lair'
-          command: lair migrate
+          name: 'Execute migrations'
+          command: migrate -source file://database/migrations -database $STAGE_DB_URL up
       - aws-white-list-circleci-ip/remove:
           port: 5432
           tag-key: Name
