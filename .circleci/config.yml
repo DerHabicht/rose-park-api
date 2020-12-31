@@ -37,6 +37,8 @@ jobs:
     working_directory: ~/rose-park-api
     docker:
       - image: python:3.8
+    environment:
+      PATH: /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.local/bin
     steps:
       - checkout
       # Upload stage migrations
@@ -48,17 +50,18 @@ jobs:
       ## The '|| echo egal' construct on the next two steps should keep the job from failing on those steps.
       - run:
           name: 'Shut down existing service on Stage A'
-          command: 'ssh ec2-user@$EC2_STAGE_A "podman stop rp-stage || echo egal"'
+          command: 'ssh -o StrictHostKeyChecking=no ec2-user@$EC2_STAGE_A "podman stop rp-stage || echo egal"'
       - run:
           name: 'Remove Stage A Container'
-          command: 'ssh ec2-user@$EC2_STAGE_A "podman rm rp-stage || echo egal"'
+          command: 'ssh -o StrictHostKeyChecking=no ec2-user@$EC2_STAGE_A "podman rm rp-stage || echo egal"'
       - run:
           name: 'Pull Stage A Container'
-          command: 'ssh ec2-user@$EC2_STAGE_A "podman pull derhabicht/rose-park:$CIRCLE_BRANCH"'
+          command: 'ssh -o StrictHostKeyChecking=no ec2-user@$EC2_STAGE_A "podman pull derhabicht/rose-park:$CIRCLE_BRANCH"'
       - run:
           name: 'Start Stage A Container'
           command: |
             ssh ec2-user@$EC2_STAGE_A \
+              -o StrictHostKeyChecking=no \
               "podman run -d --name rp-stage \
               --publish 8080:8080 \
               --env DB_HOST=$STAGE_DB_HOST \
@@ -72,17 +75,18 @@ jobs:
       ## The '|| echo egal' construct on the next two steps should keep the job from failing on those steps.
       - run:
           name: 'Shut down existing service on Stage B'
-          command: 'ssh ec2-user@$EC2_STAGE_B "podman stop rp-stage || echo egal"'
+          command: 'ssh -o StrictHostKeyChecking=no ec2-user@$EC2_STAGE_B "podman stop rp-stage || echo egal"'
       - run:
           name: 'Remove Stage B Container'
-          command: 'ssh ec2-user@$EC2_STAGE_B "podman rm rp-stage || echo egal"'
+          command: 'ssh -o StrictHostKeyChecking=no ec2-user@$EC2_STAGE_B "podman rm rp-stage || echo egal"'
       - run:
           name: 'Pull Stage B Container'
-          command: 'ssh ec2-user@$EC2_STAGE_B "podman pull derhabicht/rose-park:$CIRCLE_BRANCH"'
+          command: 'ssh -o StrictHostKeyChecking=no ec2-user@$EC2_STAGE_B "podman pull derhabicht/rose-park:$CIRCLE_BRANCH"'
       - run:
           name: 'Start Stage B Container'
           command: |
             ssh ec2-user@$EC2_STAGE_B \
+              -o StrictHostKeyChecking=no \
               "podman run -d --name rp-stage \
               --publish 8080:8080 \
               --env DB_HOST=$STAGE_DB_HOST \
