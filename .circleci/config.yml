@@ -5,7 +5,7 @@ jobs:
   test:
     working_directory: ~/go/src/DerHabicht/rose-park-api
     docker:
-      - image: weblair/lair:0.5.4
+      - image: weblair/lair:0.5.5
     steps:
       - checkout
       - restore_cache:
@@ -34,9 +34,9 @@ jobs:
           name: 'Push image to Dockerhub'
           command: 'docker push derhabicht/rose-park:$CIRCLE_BRANCH'
   stage:
-    working_directory: ~/go/src/DerHabicht/rose-park-api
+    working_directory: ~/rose-park-api
     docker:
-      - image: weblair/lair:0.5.5
+      - image: python:3.8
     steps:
       - checkout
       # Upload stage migrations

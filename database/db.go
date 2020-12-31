@@ -13,6 +13,10 @@ import (
 
 var DB *gorm.DB = nil
 
+func migrateDatabase() error {
+	return nil
+}
+
 func init() {
 	var err error = nil
 
