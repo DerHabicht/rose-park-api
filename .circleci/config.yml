@@ -70,6 +70,11 @@ jobs:
               --env DB_PASSWORD=$STAGE_DB_PASSWORD \
               --env AUTH0_API_AUDIENCE=$AUTH0_API_AUDIENCE \
               --env AUTH0_JWK=$AUTH0_JWK \
+              --env AWS_ACCESS_KEY=$STAGE_AWS_ACCESS_KEY \
+              --env AWS_SECRET_KEY=$STAGE_AWS_SECRET_KEY \
+              --env AWS_LOGS_REGION=$STAGE_AWS_LOGS_REGION \
+              --env CLOUDWATCH_GROUP_NAME=$STAGE_CLOUDWATCH_GROUP_NAME \
+              --env CLOUDWATCH_STREAM_NAME=$STAGE_CLOUDWATCH_STREAM_NAME \
               derhabicht/rose-park:$CIRCLE_BRANCH"
       # Stage B Deploy
       ## The '|| echo egal' construct on the next two steps should keep the job from failing on those steps.
@@ -95,6 +100,11 @@ jobs:
               --env DB_PASSWORD=$STAGE_DB_PASSWORD \
               --env AUTH0_API_AUDIENCE=$AUTH0_API_AUDIENCE \
               --env AUTH0_JWK=$AUTH0_JWK \
+              --env AWS_ACCESS_KEY=$STAGE_AWS_ACCESS_KEY \
+              --env AWS_SECRET_KEY=$STAGE_AWS_SECRET_KEY \
+              --env AWS_LOGS_REGION=$STAGE_AWS_LOGS_REGION \
+              --env CLOUDWATCH_GROUP_NAME=$STAGE_CLOUDWATCH_GROUP_NAME \
+              --env CLOUDWATCH_STREAM_NAME=$STAGE_CLOUDWATCH_STREAM_NAME \
               derhabicht/rose-park:$CIRCLE_BRANCH"
 
 workflows:

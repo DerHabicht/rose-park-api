@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"
@@ -11,14 +9,6 @@ import (
 
 	"github.com/derhabicht/rose-park/controllers"
 )
-
-func configureResource(g *gin.RouterGroup, c controllers.Controller, r string) {
-	g.POST(fmt.Sprintf("/%s", r), c.Create)
-	g.GET(fmt.Sprintf("/%s", r), c.List)
-	g.GET(fmt.Sprintf("/%s/:public_id", r), c.Fetch)
-	g.PUT(fmt.Sprintf("/%s/:public_id", r), c.Update)
-	g.DELETE(fmt.Sprintf("/%s/:public_id", r), c.Delete)
-}
 
 func newRouter(version string, logger *logrus.Logger) *gin.Engine {
 	router := gin.New()

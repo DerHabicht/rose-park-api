@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	_ "github.com/derhabicht/rose-park/config"
+	"github.com/derhabicht/rose-park/config"
 	_ "github.com/derhabicht/rose-park/database"
 	_ "github.com/derhabicht/rose-park/docs"
 )
@@ -42,6 +41,6 @@ func main() {
 		BuildTime,
 	)
 
-	router := newRouter(version, logrus.New())
+	router := newRouter(version, config.Log)
 	_ = router.Run(viper.GetString("url"))
 }

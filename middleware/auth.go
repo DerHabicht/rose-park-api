@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"github.com/derhabicht/rose-park/config"
 	"net/http"
 
 	"github.com/auth0-community/go-auth0"
@@ -23,7 +24,7 @@ func Authorize(validator *auth0.JWTValidator) gin.HandlerFunc {
 		tok, err := validator.ValidateRequest(c.Request)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
-			logrus.WithFields(logrus.Fields{
+			config.Log.WithFields(logrus.Fields{
 				"error": err,
 			}).Error("Invalid auth token provided to API")
 			return
@@ -31,7 +32,7 @@ func Authorize(validator *auth0.JWTValidator) gin.HandlerFunc {
 
 		claims := make(map[string]interface{})
 		err = validator.Claims(c.Request, tok, &claims)
-		logrus.WithFields(logrus.Fields{
+		config.Log.WithFields(logrus.Fields{
 			"claims": claims,
 		}).Debug("")
 

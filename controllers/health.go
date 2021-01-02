@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"github.com/derhabicht/rose-park/config"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 
 	"github.com/derhabicht/rose-park/database"
@@ -49,6 +51,10 @@ func (h HealthController) Check(c *gin.Context) {
 		h.Status.Errors = append(h.Status.Errors, err.Error())
 		httpStatus = http.StatusServiceUnavailable
 	}
+
+	config.Log.WithFields(logrus.Fields{
+		"status": MarshalForLog(h.Status),
+	}).Debug("Health check endpoint called.")
 
 	c.JSON(httpStatus, h.Status)
 }
