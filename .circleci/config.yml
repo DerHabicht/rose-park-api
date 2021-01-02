@@ -64,6 +64,7 @@ jobs:
               -o StrictHostKeyChecking=no \
               "podman run -d --name rp-stage \
               --publish 8080:8080 \
+              --env ENV=stage \
               --env DB_HOST=$STAGE_DB_HOST \
               --env DB_USER=$STAGE_DB_USER \
               --env DB_NAME=$STAGE_DB_NAME \
@@ -94,6 +95,7 @@ jobs:
               -o StrictHostKeyChecking=no \
               "podman run -d --name rp-stage \
               --publish 8080:8080 \
+              --env ENV=stage \
               --env DB_HOST=$STAGE_DB_HOST \
               --env DB_USER=$STAGE_DB_USER \
               --env DB_NAME=$STAGE_DB_NAME \

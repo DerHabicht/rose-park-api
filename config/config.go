@@ -2,22 +2,22 @@ package config
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/gin-gonic/gin"
 	logrusCW "github.com/kdar/logrus-cloudwatchlogs"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/subosito/gotenv"
-	"os"
 )
 
+// Log is the application logger.
 var Log *logrus.Logger
 
 func initLogging() {
-	if viper.GetString("GIN_MODE") == "debug" {
-		Log := logrus.StandardLogger()
-		Log.SetLevel(logrus.DebugLevel)
-	} else {
+	if viper.GetString("ENV") == "production" || viper.GetString("ENV") == "stage" {
 		sess, err := session.NewSessionWithOptions(session.Options{
 			SharedConfigState: session.SharedConfigEnable,
 			Config: aws.Config{Region: aws.String(viper.GetString("AWS_LOGS_REGION"))},
@@ -39,6 +39,12 @@ func initLogging() {
 		Log.Hooks.Add(hook)
 		Log.Out = os.Stdout
 		Log.Formatter = logrusCW.NewProdFormatter()
+	} else {
+		Log = logrus.StandardLogger()
+	}
+
+	if viper.GetString("ENV") == "development" {
+		Log.SetLevel(logrus.DebugLevel)
 	}
 }
 
@@ -46,7 +52,7 @@ func init() {
 	_ = gotenv.Load()
 	viper.AutomaticEnv()
 
-	viper.SetDefault("GIN_MODE", "debug")
+	viper.SetDefault("ENV", "development")
 	viper.SetDefault("URL", "localhost:3000")
 	viper.SetDefault("DB_HOST", "localhost")
 	viper.SetDefault("DB_USER", "postgres")
@@ -59,6 +65,16 @@ func init() {
 	viper.SetDefault("AWS_LOGS_REGION", "")
 	viper.SetDefault("CLOUDWATCH_GROUP_NAME", "")
 	viper.SetDefault("CLOUDWATCH_STREAM_NAME", "")
+	viper.SetDefault("GITHUB_USER", "")
+	viper.SetDefault("GITHUB_ACCESS_TOKEN", "")
+
+	if viper.GetString("ENV") == "production" || viper.GetString("ENV") == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	} else if viper.GetString("ENV") == "test" {
+		gin.SetMode(gin.TestMode)
+	} else {
+		gin.SetMode(gin.DebugMode)
+	}
 
 	initLogging()
 }

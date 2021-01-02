@@ -11,6 +11,5 @@ RUN rm -rf /go/src/
 
 EXPOSE 8080
 ENV URL 0.0.0.0:8080
-ENV GIN_MODE release
 
 CMD ["/go/bin/rose-park"]
