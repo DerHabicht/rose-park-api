@@ -14,15 +14,12 @@ jobs:
           name: 'Tidy modules'
           command: 'go mod tidy'
       - run:
-          name: 'Build vendor/ directory'
-          command: 'go mod vendor'
-      - run:
           name: 'Run tests'
           command: 'go test ./...'
       - save_cache:
           key: dependency-cache-{{ checksum "go.sum" }}
           paths:
-            - ./vendor
+            - ~/go/src/
   build:
     machine: true
     steps:
