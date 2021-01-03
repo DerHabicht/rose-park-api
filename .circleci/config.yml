@@ -12,10 +12,10 @@ jobs:
           key: dependency-cache-{{ checksum "go.sum" }}
       - run:
           name: 'Tidy modules'
-          run: 'go mod tidy'
+          command: 'go mod tidy'
       - run:
           name: 'Build vendor/ directory'
-          run: 'go mod vendor'
+          command: 'go mod vendor'
       - run:
           name: 'Run tests'
           command: 'go test ./...'
