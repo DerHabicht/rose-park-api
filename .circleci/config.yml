@@ -28,7 +28,7 @@ jobs:
           command: 'echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USER --password-stdin'
       - run:
           name: 'Build Docker image'
-          command: 'docker build --file build/package/Dockerfile --tag derhabicht/rose-park-api:$CIRCLE_BRANCH .'
+          command: 'docker build --tag derhabicht/rose-park-api:$CIRCLE_BRANCH .'
       - run:
           name: 'Push image to Dockerhub'
           command: 'docker push derhabicht/rose-park:$CIRCLE_BRANCH'
