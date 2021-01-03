@@ -11,9 +11,6 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "go.sum" }}
       - run:
-          name: 'Start Postgres'
-          command: 'service postgresql start'
-      - run:
           name: 'Run tests'
           command: 'make test'
       - save_cache:
@@ -24,6 +21,8 @@ jobs:
     machine: true
     steps:
       - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "go.sum" }}
       - run:
           name: 'Login to Dockerhub'
           command: 'echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USER --password-stdin'
