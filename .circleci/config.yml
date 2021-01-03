@@ -46,11 +46,6 @@ jobs:
       PATH: /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.local/bin
     steps:
       - checkout
-      # Upload stage migrations
-      - aws-s3/sync:
-          from: database/migrations
-          to: $STAGE_MIGRATIONS_BUCKET
-          overwrite: true
       # Stage A Deploy
       ## The '|| echo egal' construct on the next two steps should keep the job from failing on those steps.
       - run:
