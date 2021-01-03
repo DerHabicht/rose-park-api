@@ -11,6 +11,12 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "go.sum" }}
       - run:
+          name: 'Tidy modules'
+          run: 'go mod tidy'
+      - run:
+          name: 'Build vendor/ directory'
+          run: 'go mod vendor'
+      - run:
           name: 'Run tests'
           command: 'go test ./...'
       - save_cache:
@@ -31,7 +37,7 @@ jobs:
           command: 'docker build --tag derhabicht/rose-park-api:$CIRCLE_BRANCH .'
       - run:
           name: 'Push image to Dockerhub'
-          command: 'docker push derhabicht/rose-park:$CIRCLE_BRANCH'
+          command: 'docker push derhabicht/rose-park-api:$CIRCLE_BRANCH'
   stage:
     working_directory: ~/rose-park-api
     docker:
