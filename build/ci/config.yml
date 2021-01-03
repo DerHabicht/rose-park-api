@@ -1,0 +1,147 @@
+version: 2.1
+orbs:
+  aws-s3: circleci/aws-s3@1.0.16
+jobs:
+  test:
+    working_directory: ~/go/src/DerHabicht/rose-park-api
+    docker:
+      - image: golang:1.15
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "go.sum" }}
+      - run:
+          name: 'Start Postgres'
+          command: 'service postgresql start'
+      - run:
+          name: 'Run tests'
+          command: 'make test'
+      - save_cache:
+          key: dependency-cache-{{ checksum "go.sum" }}
+          paths:
+            - ./vendor
+  build:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: 'Login to Dockerhub'
+          command: 'echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USER --password-stdin'
+      - run:
+          name: 'Build Docker image'
+          command: 'docker build --file build/package/Dockerfile --tag derhabicht/rose-park-api:$CIRCLE_BRANCH .'
+      - run:
+          name: 'Push image to Dockerhub'
+          command: 'docker push derhabicht/rose-park:$CIRCLE_BRANCH'
+  stage:
+    working_directory: ~/rose-park-api
+    docker:
+      - image: python:3.8
+    environment:
+      PATH: /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.local/bin
+    steps:
+      - checkout
+      # Upload stage migrations
+      - aws-s3/sync:
+          from: database/migrations
+          to: $STAGE_MIGRATIONS_BUCKET
+          overwrite: true
+      # Stage A Deploy
+      ## The '|| echo egal' construct on the next two steps should keep the job from failing on those steps.
+      - run:
+          name: 'Shut down existing service on Stage A'
+          command: 'ssh -o StrictHostKeyChecking=no ec2-user@$EC2_STAGE_A "podman stop rp-stage || echo egal"'
+      - run:
+          name: 'Remove Stage A Container'
+          command: 'ssh -o StrictHostKeyChecking=no ec2-user@$EC2_STAGE_A "podman rm rp-stage || echo egal"'
+      - run:
+          name: 'Pull Stage A Container'
+          command: 'ssh -o StrictHostKeyChecking=no ec2-user@$EC2_STAGE_A "podman pull derhabicht/rose-park:$CIRCLE_BRANCH"'
+      - run:
+          name: 'Start Stage A Container'
+          command: |
+            ssh ec2-user@$EC2_STAGE_A \
+              -o StrictHostKeyChecking=no \
+              "podman run -d --name rp-stage \
+              --publish 8080:8080 \
+              --env ENV=stage \
+              --env DB_HOST=$STAGE_DB_HOST \
+              --env DB_USER=$STAGE_DB_USER \
+              --env DB_NAME=$STAGE_DB_NAME \
+              --env DB_PASSWORD=$STAGE_DB_PASSWORD \
+              --env AUTH0_API_AUDIENCE=$AUTH0_API_AUDIENCE \
+              --env AUTH0_JWK=$AUTH0_JWK \
+              --env AWS_ACCESS_KEY=$STAGE_AWS_ACCESS_KEY \
+              --env AWS_SECRET_KEY=$STAGE_AWS_SECRET_KEY \
+              --env AWS_LOGS_REGION=$STAGE_AWS_LOGS_REGION \
+              --env CLOUDWATCH_GROUP_NAME=$STAGE_CLOUDWATCH_GROUP_NAME \
+              --env CLOUDWATCH_STREAM_NAME=$STAGE_CLOUDWATCH_STREAM_NAME \
+              derhabicht/rose-park:$CIRCLE_BRANCH"
+      # Stage B Deploy
+      ## The '|| echo egal' construct on the next two steps should keep the job from failing on those steps.
+      - run:
+          name: 'Shut down existing service on Stage B'
+          command: 'ssh -o StrictHostKeyChecking=no ec2-user@$EC2_STAGE_B "podman stop rp-stage || echo egal"'
+      - run:
+          name: 'Remove Stage B Container'
+          command: 'ssh -o StrictHostKeyChecking=no ec2-user@$EC2_STAGE_B "podman rm rp-stage || echo egal"'
+      - run:
+          name: 'Pull Stage B Container'
+          command: 'ssh -o StrictHostKeyChecking=no ec2-user@$EC2_STAGE_B "podman pull derhabicht/rose-park:$CIRCLE_BRANCH"'
+      - run:
+          name: 'Start Stage B Container'
+          command: |
+            ssh ec2-user@$EC2_STAGE_B \
+              -o StrictHostKeyChecking=no \
+              "podman run -d --name rp-stage \
+              --publish 8080:8080 \
+              --env ENV=stage \
+              --env DB_HOST=$STAGE_DB_HOST \
+              --env DB_USER=$STAGE_DB_USER \
+              --env DB_NAME=$STAGE_DB_NAME \
+              --env DB_PASSWORD=$STAGE_DB_PASSWORD \
+              --env AUTH0_API_AUDIENCE=$AUTH0_API_AUDIENCE \
+              --env AUTH0_JWK=$AUTH0_JWK \
+              --env AWS_ACCESS_KEY=$STAGE_AWS_ACCESS_KEY \
+              --env AWS_SECRET_KEY=$STAGE_AWS_SECRET_KEY \
+              --env AWS_LOGS_REGION=$STAGE_AWS_LOGS_REGION \
+              --env CLOUDWATCH_GROUP_NAME=$STAGE_CLOUDWATCH_GROUP_NAME \
+              --env CLOUDWATCH_STREAM_NAME=$STAGE_CLOUDWATCH_STREAM_NAME \
+              derhabicht/rose-park:$CIRCLE_BRANCH"
+
+workflows:
+  version: 2
+  test-deploy:
+    jobs:
+      - test
+      - build:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - develop
+                - master
+                - ci
+      - stage:
+          context: aws-thus
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - develop
+                - ci
+#      - stage-test:
+#        requires:
+#          - stage
+#        filters:
+#          branches:
+#            only: develop
+#      - deploy:
+#          context: rose-park
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              only: master
