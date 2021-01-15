@@ -29,8 +29,6 @@ var GitRevision string
 var GitBranch string
 
 func setDefaults() {
-	viper.SetDefault("AUTH0_API_AUDIENCE", "")
-	viper.SetDefault("AUTH0_JWK", "")
 	viper.SetDefault("AWS_ACCESS_KEY", "")
 	viper.SetDefault("AWS_LOGS_REGION", "")
 	viper.SetDefault("AWS_SECRET_KEY", "")
